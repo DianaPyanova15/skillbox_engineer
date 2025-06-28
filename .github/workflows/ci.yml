@@ -22,7 +22,7 @@ jobs:
           yarn install
           NODE_OPTIONS=--openssl-legacy-provider yarn build
       - name: Upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-folder
           path: build
@@ -33,7 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Download build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/download-artifact@v4
         with:
           name: build-folder
           path: build
