@@ -1,0 +1,37 @@
+name: skillbox_diana
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  test:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run tests
+        run: |
+          echo "Running tests..."
+          ./.github/run_tests.sh
+
+  build:
+    needs: test
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build application
+        run: |
+          echo "Building application..."
+          ./build.sh
+
+  post_build_test:
+    needs: build
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v3
+      - name: Post-build abstract test
+        run: |
+          echo "Running post-build abstract test..."
+          ./abstract_test.sh
