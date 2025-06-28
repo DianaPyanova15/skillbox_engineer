@@ -24,7 +24,7 @@ jobs:
       - name: Build application
         run: |
           echo "Building application..."
-          ./build.sh
+          ./.github/build.sh
 
   post_build_test:
     needs: build
@@ -34,4 +34,4 @@ jobs:
       - name: Post-build abstract test
         run: |
           echo "Running post-build abstract test..."
-          ./abstract_test.sh
+          ./.github/abstract_test.sh
