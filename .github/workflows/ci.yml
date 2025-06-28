@@ -13,13 +13,14 @@ env:
 jobs:
   build:
     runs-on: self-hosted
+    container:
+      image: node:18
     steps:
       - uses: actions/checkout@v3
       - name: Install dependencies and build
         run: |
           yarn install
           yarn build
-          mv build build_prod
 
   deploy:
     needs: build
