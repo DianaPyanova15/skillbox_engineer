@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies and build
         run: |
           yarn install
-          yarn build
+          NODE_OPTIONS=--openssl-legacy-provider yarn build
 
   deploy:
     needs: build
