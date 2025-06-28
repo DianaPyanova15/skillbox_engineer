@@ -1,37 +1,64 @@
-name: skillbox_diana
+name: Blue-Green Deploy
 
 on:
   push:
     branches:
-      - main
       - master
+  workflow_dispatch:
+
+env:
+  docker_html_path: /var/www
+  deploy_subfolder: html
 
 jobs:
-  test:
-    runs-on: self-hosted
-    steps:
-      - uses: actions/checkout@v3
-      - name: Run tests
-        run: |
-          echo "Running tests..."
-          ./.github/run_tests.sh
-
   build:
-    needs: test
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
-      - name: Build application
+      - name: Install dependencies and build
         run: |
-          echo "Building application..."
-          ./.github/build.sh
+          yarn install
+          yarn build
+          mv build build_prod
 
-  post_build_test:
+  deploy:
     needs: build
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
-      - name: Post-build abstract test
+      - name: Deploy production build
         run: |
-          echo "Running post-build abstract test..."
-          ./.github/abstract_test.sh
+          cp -r build_prod ${{ env.docker_html_path }}/test-app/prod_${{ github.sha }}
+          cp -Pv ${{ env.docker_html_path }}/${{ env.deploy_subfolder }} ${{ env.docker_html_path }}/test-app/prod_${{ github.sha }}/prev-version || true
+
+  activate:
+    needs: deploy
+    runs-on: self-hosted
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Activate new version (symlink)
+        run: |
+          ln -fsnv ${{ env.docker_html_path }}/test-app/prod_${{ github.sha }} ${{ env.docker_html_path }}/${{ env.deploy_subfolder }}
+
+  revert_one_version:
+    runs-on: self-hosted
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Revert one version back
+        run: |
+          cp -Pv --remove-destination ${{ env.docker_html_path }}/test-app/${{ github.sha }}/prev-version ${{ env.docker_html_path }}/html
+
+  revert_two_versions_back:
+    runs-on: self-hosted
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Revert two versions back
+        run: |
+          versions=( $(ls -dt ${{ env.docker_html_path }}/test-app/prod_*) )
+          if [ ${#versions[@]} -lt 2 ]; then
+            echo "Not enough versions for two-step revert"
+            exit 1
+          fi
+          second_version=${versions[1]}
+          echo "Reverting to: $second_version"
+          cp -r --remove-destination "$second_version" ${{ env.docker_html_path }}/html
