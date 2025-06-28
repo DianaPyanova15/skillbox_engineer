@@ -39,9 +39,17 @@ jobs:
           path: build
       - name: Deploy production build
         run: |
+          mkdir -p ${{ env.docker_html_path }}/test-app
           cp -r build ${{ env.docker_html_path }}/test-app/prod_${{ github.sha }}
           # При запуске под root chown не нужен
           cp -Pv ${{ env.docker_html_path }}/${{ env.deploy_subfolder }} ${{ env.docker_html_path }}/test-app/prod_${{ github.sha }}/prev-version || true
+      - name: Install serve globally
+        run: npm install -g serve
+      - name: Start production server
+        run: |
+          # Запускаем сервер из папки с билдом на фоне, порт 3000
+          serve -s ${{ env.docker_html_path }}/test-app/prod_${{ github.sha }} -l 3000 &
+          # Можно добавить sleep или логи, если нужно
 
   activate:
     needs: deploy
