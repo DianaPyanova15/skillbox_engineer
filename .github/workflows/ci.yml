@@ -39,10 +39,8 @@ jobs:
           path: build
       - name: Deploy production build
         run: |
-           yarn run start
-#          cp -r build ${{ env.docker_html_path }}/test-app/prod_${{ github.sha }}
-#          # При запуске под root chown не нужен
-#          cp -Pv ${{ env.docker_html_path }}/${{ env.deploy_subfolder }} ${{ env.docker_html_path }}/test-app/prod_${{ github.sha }}/prev-version || true
+          cp -r build ${{ env.docker_html_path }}/test-app/prod_${{ github.sha }}
+          cp -Pv ${{ env.docker_html_path }}/${{ env.deploy_subfolder }} ${{ env.docker_html_path }}/test-app/prod_${{ github.sha }}/prev-version || true
 
   activate:
     needs: deploy
