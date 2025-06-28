@@ -29,7 +29,11 @@ jobs:
       - uses: actions/checkout@v3
       - name: Deploy production build
         run: |
-          cp -r build_prod ${{ env.docker_html_path }}/test-app/prod_${{ github.sha }}
+          # Копируем папку build (стандартная папка с результатом react-scripts build)
+          cp -r build ${{ env.docker_html_path }}/test-app/prod_${{ github.sha }}
+          # Меняем владельца на diana, чтобы избежать проблем с правами
+          sudo chown -R diana:diana ${{ env.docker_html_path }}/test-app/prod_${{ github.sha }}
+          # Сохраняем предыдущую версию (если есть)
           cp -Pv ${{ env.docker_html_path }}/${{ env.deploy_subfolder }} ${{ env.docker_html_path }}/test-app/prod_${{ github.sha }}/prev-version || true
 
   activate:
