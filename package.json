@@ -34,5 +34,9 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "resolutions": {
+    "postcss": "8.4.21",
+    "postcss-safe-parser": "6.0.1"
   }
 }
